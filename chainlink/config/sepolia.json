@@ -1,0 +1,6 @@
+{
+  "network": "sepolia",
+  "router": "0xYourRouterAddress",
+  "donId": "fun-sepolia-1",
+  "subscriptionId": 123
+}

@@ -1,0 +1,38 @@
+{
+  "canisters": {
+    "internet_identity": {
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "frontend": {},
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+    },
+    "lain_art_backend": {
+      "candid": "src/lain_art_backend/lain_art_backend.did",
+      "package": "lain_art_backend",
+      "type": "rust"
+    },
+    "lain_art_frontend": {
+      "dependencies": [
+        "lain_art_backend"
+      ],
+      "source": [
+        "src/lain_art_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "lain_art_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
