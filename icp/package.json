@@ -14,5 +14,10 @@
   "type": "module",
   "workspaces": [
     "src/lain_art_frontend"
-  ]
+  ],
+  "dependencies": {
+    "@dfinity/agent": "^3.2.6",
+    "@dfinity/auth-client": "^3.2.6",
+    "@dfinity/principal": "^3.2.6"
+  }
 }

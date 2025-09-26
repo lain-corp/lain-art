@@ -1,0 +1,28 @@
+---
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import '../../styles/index.css'
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>lain.art — Upload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  </head>
+
+  <body>
+    <Header />
+
+    <main>
+      <label class="upload-box">
+        <input type="file" accept="image/*" />
+        <span class="upload-title">Upload Your Artwork</span>
+        <span class="upload-sub">Click or drag & drop an image</span>
+      </label>
+    </main>
+
+    <Footer />
+  </body>
+</html>
