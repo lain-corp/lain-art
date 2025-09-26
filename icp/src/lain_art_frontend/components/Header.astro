@@ -1,15 +1,20 @@
 ---
 import '../styles/header.css'
-import { initAuth } from '../lib/auth.ts'
 ---
 
 <header>
   <div class="nav-container">
+    <!-- Left: Logo -->
     <a href="/" class="logo">lain.art</a>
+
+    <!-- Middle: Nav -->
     <nav id="nav">
       <a href="/how-to">How‑To</a>
+      <!-- Single auth button (works for both desktop & mobile) -->
+      <button id="auth-btn" class="auth-btn">Authenticate</button>
     </nav>
-    <button id="auth-btn" class="auth-btn desktop-only">Authenticate</button>
+
+    <!-- Mobile Menu Button -->
     <div id="menu-btn" class="menu-btn">
       <span></span><span></span><span></span>
     </div>
@@ -17,15 +22,10 @@ import { initAuth } from '../lib/auth.ts'
 </header>
 
 <script type="module">
-  import { initAuth } from "../src/lib/auth.ts";
-
   window.addEventListener("DOMContentLoaded", () => {
-    // mobile menu toggle
+    // Mobile menu toggle
     const btn = document.getElementById("menu-btn");
     const nav = document.getElementById("nav");
     btn?.addEventListener("click", () => nav?.classList.toggle("active"));
-
-    // init auth
-    initAuth("auth-btn");
   });
 </script>

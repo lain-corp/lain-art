@@ -65,3 +65,74 @@
         font-size: 0.9rem;
         color: #ccc;
       }
+
+      .upload-status {
+  display: inline-block;
+  margin: 1rem auto;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(255, 0, 255, 0.3);
+}
+
+/* Unauthenticated look */
+.upload-status.unauth {
+  background: linear-gradient(135deg, #ff4d6d, #ff99ac);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Authenticated look */
+.upload-status.auth {
+  background: linear-gradient(135deg, #00f5ff, #7b2fff);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.upload-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* The bubble itself */
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-top: 2.5rem; /* leave space for status */
+  background: rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+/* Status pill */
+.upload-status {
+  position: absolute;
+  top: -1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+/* Unauthenticated look */
+.upload-status.unauth {
+  background: linear-gradient(135deg, #ff4d6d, #ff99ac);
+  color: #fff;
+}
+
+/* Authenticated look */
+.upload-status.auth {
+  background: linear-gradient(135deg, #00f5ff, #7b2fff);
+  color: #fff;
+}

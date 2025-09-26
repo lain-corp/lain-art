@@ -1,7 +1,7 @@
 ---
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
-import '../../styles/index.css'
+import "../../styles/index.css";
 ---
 
 <html lang="en">
@@ -9,20 +9,79 @@ import '../../styles/index.css'
     <meta charset="UTF-8" />
     <title>lain.art — Upload</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   </head>
 
   <body>
     <Header />
 
     <main>
+      <!-- Status line -->
+      <p id="upload-status" class="upload-status">
+        ❌ Please authenticate to enable uploads
+      </p>
+
       <label class="upload-box">
-        <input type="file" accept="image/*" />
+        <!-- Disabled until authenticated -->
+        <input id="upload-input" type="file" accept="image/*" disabled />
         <span class="upload-title">Upload Your Artwork</span>
-        <span class="upload-sub">Click or drag & drop an image</span>
+        <span class="upload-sub">Authenticate first to enable uploads</span>
       </label>
     </main>
 
     <Footer />
+
+    <script type="module">
+      import { getAuthClient, login, logout, getPrincipal } from "../../lib/auth.ts";
+
+      window.addEventListener("DOMContentLoaded", async () => {
+        const uploadInput = document.getElementById("upload-input");
+        const authBtn = document.getElementById("auth-btn"); // header button
+        const statusEl = document.getElementById("upload-status");
+
+        if (!uploadInput || !authBtn || !statusEl) {
+          console.warn("[Upload] Missing DOM elements");
+          return;
+        }
+
+function enableUI(principal) {
+  uploadInput.removeAttribute("disabled");
+  authBtn.textContent = "Logout";
+  statusEl.textContent = `✅ Connected as ${principal}`;
+  statusEl.classList.remove("unauth");
+  statusEl.classList.add("auth");
+  console.log("[Auth] Enabled for", principal);
+}
+
+function disableUI() {
+  uploadInput.setAttribute("disabled", "true");
+  authBtn.textContent = "Authenticate";
+  statusEl.textContent = "❌ Please authenticate to enable uploads";
+  statusEl.classList.remove("auth");
+  statusEl.classList.add("unauth");
+  console.log("[Auth] Disabled");
+}
+
+
+        // Wire up the header button
+        authBtn.addEventListener("click", async () => {
+          const client = await getAuthClient();
+          if (await client.isAuthenticated()) {
+            await logout();
+            disableUI();
+          } else {
+            const principal = await login();
+            if (principal) enableUI(principal);
+          }
+        });
+
+        // Restore session on load
+        const principal = await getPrincipal();
+        if (principal) {
+          enableUI(principal);
+        } else {
+          disableUI();
+        }
+      });
+    </script>
   </body>
 </html>
