@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@dfinity/auth-client": "^3.2.6",
     "astro": "^5.14.1"
   }
 }

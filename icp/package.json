@@ -1,20 +1,17 @@
 {
   "engines": {
     "node": ">=16.0.0",
-    "npm": ">=7.0.0"
+    "astro": ">=7.0.0"
   },
   "name": "lain_art",
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "prebuild": "npm run prebuild --workspaces --if-present",
-    "pretest": "npm run prebuild --workspaces --if-present",
-    "start": "npm start --workspaces --if-present",
-    "test": "npm test --workspaces --if-present"
+    "build": "astro run build",
+    "prebuild": "astro run prebuild",
+    "pretest": "astro run prebuild",
+    "start": "astro start",
+    "test": "astro test"
   },
   "type": "module",
-  "workspaces": [
-    "src/lain_art_frontend"
-  ],
   "dependencies": {
     "@dfinity/agent": "^3.2.6",
     "@dfinity/auth-client": "^3.2.6",

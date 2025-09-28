@@ -43,24 +43,23 @@ import "../../styles/index.css";
           return;
         }
 
-function enableUI(principal) {
-  uploadInput.removeAttribute("disabled");
-  authBtn.textContent = "Logout";
-  statusEl.textContent = `✅ Connected as ${principal}`;
-  statusEl.classList.remove("unauth");
-  statusEl.classList.add("auth");
-  console.log("[Auth] Enabled for", principal);
-}
+        function enableUI(principal) {
+          uploadInput.removeAttribute("disabled");
+          authBtn.textContent = "Logout";
+          statusEl.textContent = `✅ Connected as ${principal}`;
+          statusEl.classList.remove("unauth");
+          statusEl.classList.add("auth");
+          console.log("[Auth] Enabled for", principal);
+        }
 
-function disableUI() {
-  uploadInput.setAttribute("disabled", "true");
-  authBtn.textContent = "Authenticate";
-  statusEl.textContent = "❌ Please authenticate to enable uploads";
-  statusEl.classList.remove("auth");
-  statusEl.classList.add("unauth");
-  console.log("[Auth] Disabled");
-}
-
+        function disableUI() {
+          uploadInput.setAttribute("disabled", "true");
+          authBtn.textContent = "Authenticate";
+          statusEl.textContent = "❌ Please authenticate to enable uploads";
+          statusEl.classList.remove("auth");
+          statusEl.classList.add("unauth");
+          console.log("[Auth] Disabled");
+        }
 
         // Wire up the header button
         authBtn.addEventListener("click", async () => {
