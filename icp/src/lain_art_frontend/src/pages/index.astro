@@ -1,23 +1,21 @@
 ---
-import Header from "../../components/Header.astro";
-import Footer from "../../components/Footer.astro";
-import "../../styles/index.css";
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<Header />
+<BaseLayout>
+  <div class="upload-container">
+    <div id="upload-status" class="upload-status unauth">
+      ❌ Please authenticate to enable uploads
+    </div>
+    <label class="upload-box">
+      <input id="upload-input" type="file" accept="image/*" disabled />
+      <span class="upload-title">Upload Your Artwork</span>
+      <span class="upload-sub">Authenticate first to enable uploads</span>
+    </label>
+  </div>
 
-<main>
-  <label class="upload-box">
-    <input id="upload-input" type="file" accept="image/*" disabled />
-    <span class="upload-title">Upload Your Artwork</span>
-    <span class="upload-sub">Authenticate first to enable uploads</span>
-  </label>
-</main>
-
-<Footer />
-
-<!-- Astro will bundle this correctly -->
-<script>
-  import { initUpload } from "../scripts/upload.ts";
-  window.addEventListener("DOMContentLoaded", initUpload);
-</script>
+  <script>
+    import { initUpload } from "../scripts/upload";
+    window.addEventListener("DOMContentLoaded", initUpload);
+  </script>
+</BaseLayout>

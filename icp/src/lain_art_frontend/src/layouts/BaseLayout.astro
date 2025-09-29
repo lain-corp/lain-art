@@ -1,0 +1,20 @@
+---
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import "../../styles/index.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lain.art</title>
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot /> <!-- Qui verrà iniettato il contenuto della pagina -->
+    </main>
+    <Footer />
+  </body>
+</html>
