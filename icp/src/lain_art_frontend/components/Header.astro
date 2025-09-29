@@ -1,6 +1,5 @@
 ---
-import { initAuth } from "../lib/auth.ts";
-import '../styles/header.css'
+import '../styles/header.css';
 ---
 
 <header>
@@ -10,7 +9,7 @@ import '../styles/header.css'
 
     <!-- Middle: Nav -->
     <nav id="nav">
-      <a href="/how-to">How‑To</a>
+      <a href="/how-to">How&#8209;To</a>
       <button id="auth-btn" class="auth-btn">Authenticate</button>
     </nav>
 
@@ -21,8 +20,8 @@ import '../styles/header.css'
   </div>
 </header>
 
-<script type="module">
-  import { initAuth } from "../lib/auth.ts";
+<script>
+  import { initAuth } from "../lib/auth";
 
   window.addEventListener("DOMContentLoaded", () => {
     // Initialize the auth button globally so it works on every page
