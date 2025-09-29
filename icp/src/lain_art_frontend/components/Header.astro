@@ -1,9 +1,10 @@
 ---
-import '../styles/header.css';
+import "../styles/header.css";
+import "../styles/global.css";
 ---
 
 <header>
-  <div class="nav-container">
+  <div class="page-container nav-container">
     <!-- Left: Logo -->
     <a href="/" class="logo">lain.art</a>
 
@@ -24,12 +25,11 @@ import '../styles/header.css';
   import { initAuth } from "../lib/auth";
 
   window.addEventListener("DOMContentLoaded", () => {
-    // Initialize the auth button globally so it works on every page
     initAuth("auth-btn");
 
-    // Mobile menu toggle
     const btn = document.getElementById("menu-btn");
     const nav = document.getElementById("nav");
     btn?.addEventListener("click", () => nav?.classList.toggle("active"));
   });
 </script>
+

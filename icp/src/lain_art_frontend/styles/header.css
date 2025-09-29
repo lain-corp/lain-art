@@ -9,10 +9,8 @@ header {
   box-shadow: 0 0 12px rgba(255, 92, 192, 0.4);
 }
 
+/* only layout now, width/padding handled by .page-container */
 .nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0.75rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -78,7 +76,7 @@ nav a:hover::after {
   width: 100%;
 }
 
-/* Mobile menu button (hamburger) */
+/* Mobile menu button */
 .menu-btn {
   display: none;
   flex-direction: column;
@@ -94,14 +92,8 @@ nav a:hover::after {
   transition: all 0.3s ease;
 }
 
-/* -------------------- */
-/* Mobile optimization  */
-/* -------------------- */
+/* Mobile optimization */
 @media (max-width: 768px) {
-  .nav-container {
-    padding: 0.75rem 1rem;
-  }
-
   nav {
     position: absolute;
     top: 100%;
@@ -140,7 +132,6 @@ nav a:hover::after {
   }
 }
 
-/* Slide down animation for mobile nav */
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-10px); }
   to   { opacity: 1; transform: translateY(0); }

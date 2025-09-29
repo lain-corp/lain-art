@@ -25,14 +25,11 @@ main {
   padding: 2rem;
 }
 
-/* Upload container with status pill */
 .upload-container {
-  position: relative;
-  display: inline-block;
+  display: flex;
+  justify-content: center;   /* center horizontally */
   width: 100%;
-  max-width: 600px;
 }
-
 /* Upload box */
 .upload-box {
   width: 100%;
