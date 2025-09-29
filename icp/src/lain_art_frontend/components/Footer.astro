@@ -1,76 +1,50 @@
 ---
----
+--- 
 
 <style>
-  /* Vaporwave / Futurefunk Footer Styles */
-  footer {
-    width: 100%;
-    background: rgba(12, 10, 27, 0.7);
-    backdrop-filter: blur(12px) saturate(140%);
-    border-top: 1px solid rgba(255, 92, 192, 0.4);
-    box-shadow: 0 -2px 12px rgba(255, 92, 192, 0.3);
-    padding: 2rem 1.5rem;
-    color: #e9e6ff;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.85rem;
-  }
+footer {
+  width: 100%;
+  background: rgba(12, 10, 27, 0.7);
+  backdrop-filter: blur(12px) saturate(140%);
+  border-top: 1px solid rgba(255, 92, 192, 0.4);
+  box-shadow: 0 -2px 12px rgba(255, 92, 192, 0.3);
+  padding: 1.5rem 1rem;
+  color: #e9e6ff;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+}
 
-  .footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    align-items: center;
-    text-align: center;
-  }
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+  text-align: center;
+}
 
-  .footer-logo {
-    font-family: "Zen Dots", "IBM Plex Mono", monospace;
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 6px #ff5dc0, 0 0 18px #ff2ea6, 0 0 36px #ff2ea6;
-    letter-spacing: 0.05em;
-  }
+.footer-logo {
+  font-family: "Zen Dots", "IBM Plex Mono", monospace;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 6px #ff5dc0, 0 0 18px #ff2ea6, 0 0 36px #ff2ea6;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
 
-  .footer-nav {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+.footer-copy {
+  color: #8886aa;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
 
-  .footer-nav a {
-    color: #bfb8ff;
-    text-decoration: none;
-    font-weight: 600;
-    position: relative;
-    transition: color 0.2s ease;
-  }
-
-  .footer-nav a:hover {
-    color: #ff5dc0;
-    text-shadow: 0 0 8px #ff5dc0;
-  }
-
-  .footer-copy {
-    color: #8886aa;
-    font-size: 0.75rem;
-  }
-
-  @media (min-width: 768px) {
-    .footer-container {
-      flex-direction: row;
-      justify-content: space-between;
-      text-align: left;
-    }
-  }
 .footer-nav {
   display: flex;
-  gap: 1.5rem;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 1rem;
 }
 
 .footer-nav a {
@@ -79,6 +53,8 @@
   font-weight: 600;
   position: relative;
   transition: color 0.2s ease, text-shadow 0.2s ease;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .footer-nav a::after {
@@ -101,27 +77,41 @@
   width: 100%;
 }
 
+/* Tablet and up */
+@media (min-width: 768px) {
+  .footer-container {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
 
+  .footer-logo {
+    font-size: 1.4rem;
+  }
+
+  .footer-nav {
+    gap: 1.5rem;
+  }
+}
 </style>
 
 <footer>
   <div class="footer-container">
-    <!-- Branding -->
     <div>
       <div class="footer-logo">lain.art</div>
       <div class="footer-copy">
-        © {new Date().getFullYear()} — Built on <span style="color:#ff5dc0">Arweave</span>, 
+        © {new Date().getFullYear()} — Built on 
+        <span style="color:#ff5dc0">Arweave</span>, 
         <span style="color:#9747ff">ICP</span>, 
         <span style="color:#4cf3ff">Chainlink</span>
       </div>
     </div>
 
-<!-- Navigation -->
-<nav class="footer-nav">
-  <a href="https://github.com/lain-corp/lain-art" target="_blank" rel="noopener">GitHub</a>
-  <a href="https://x.com/LAINdotIO" target="_blank" rel="noopener">X</a>
-  <a href="https://disboard.org/it/server/1418643676795633776" target="_blank" rel="noopener">Discord</a>
-</nav>
-
+    <nav class="footer-nav">
+      <a href="https://github.com/lain-corp/lain-art" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://x.com/LAINdotIO" target="_blank" rel="noopener">X</a>
+      <a href="https://disboard.org/it/server/1418643676795633776" target="_blank" rel="noopener">Discord</a>
+    </nav>
   </div>
 </footer>

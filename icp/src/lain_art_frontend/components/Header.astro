@@ -1,4 +1,5 @@
 ---
+import { initAuth } from "../lib/auth.ts";
 import '../styles/header.css'
 ---
 
@@ -10,7 +11,6 @@ import '../styles/header.css'
     <!-- Middle: Nav -->
     <nav id="nav">
       <a href="/how-to">How‑To</a>
-      <!-- Single auth button (works for both desktop & mobile) -->
       <button id="auth-btn" class="auth-btn">Authenticate</button>
     </nav>
 
@@ -22,7 +22,12 @@ import '../styles/header.css'
 </header>
 
 <script type="module">
+  import { initAuth } from "../lib/auth.ts";
+
   window.addEventListener("DOMContentLoaded", () => {
+    // Initialize the auth button globally so it works on every page
+    initAuth("auth-btn");
+
     // Mobile menu toggle
     const btn = document.getElementById("menu-btn");
     const nav = document.getElementById("nav");

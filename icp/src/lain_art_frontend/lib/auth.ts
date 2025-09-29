@@ -1,6 +1,7 @@
 import { AuthClient } from "@dfinity/auth-client";
 
 let authClient: AuthClient | null = null;
+const PRINCIPAL_KEY = "icp_principal";
 
 /**
  * Ensure we always reuse the same AuthClient instance.
@@ -14,13 +15,17 @@ export async function getAuthClient(): Promise<AuthClient> {
 
 /**
  * Check if authenticated and return principal string if so.
+ * Falls back to localStorage if available.
  */
 export async function getPrincipal(): Promise<string | null> {
   const client = await getAuthClient();
   if (await client.isAuthenticated()) {
-    return client.getIdentity().getPrincipal().toText();
+    const principal = client.getIdentity().getPrincipal().toText();
+    localStorage.setItem(PRINCIPAL_KEY, principal);
+    return principal;
   }
-  return null;
+  // fallback to cached value
+  return localStorage.getItem(PRINCIPAL_KEY);
 }
 
 /**
@@ -33,6 +38,7 @@ export async function login(): Promise<string | null> {
       identityProvider: "https://identity.ic0.app",
       onSuccess: () => {
         const principal = client.getIdentity().getPrincipal().toText();
+        localStorage.setItem(PRINCIPAL_KEY, principal);
         document.dispatchEvent(
           new CustomEvent("userAuthenticated", { detail: { principal } })
         );
@@ -52,6 +58,7 @@ export async function login(): Promise<string | null> {
 export async function logout(): Promise<void> {
   const client = await getAuthClient();
   await client.logout();
+  localStorage.removeItem(PRINCIPAL_KEY);
   document.dispatchEvent(new Event("userLoggedOut"));
 }
 
@@ -70,7 +77,6 @@ export async function initAuth(buttonId: string) {
     const principal = await getPrincipal();
     if (principal) {
       authBtn.textContent = "Logout";
-      // Dispatch again on load so other pages can react
       document.dispatchEvent(
         new CustomEvent("userAuthenticated", { detail: { principal } })
       );

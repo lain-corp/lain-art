@@ -16,10 +16,6 @@ import "../../styles/index.css";
 
     <main>
       <!-- Status line -->
-      <p id="upload-status" class="upload-status">
-        ❌ Please authenticate to enable uploads
-      </p>
-
       <label class="upload-box">
         <!-- Disabled until authenticated -->
         <input id="upload-input" type="file" accept="image/*" disabled />
@@ -38,28 +34,33 @@ import "../../styles/index.css";
         const authBtn = document.getElementById("auth-btn"); // header button
         const statusEl = document.getElementById("upload-status");
 
-        if (!uploadInput || !authBtn || !statusEl) {
+        if (!uploadInput || !authBtn) {
           console.warn("[Upload] Missing DOM elements");
           return;
         }
-
+  
         function enableUI(principal) {
           uploadInput.removeAttribute("disabled");
           authBtn.textContent = "Logout";
-          statusEl.textContent = `✅ Connected as ${principal}`;
-          statusEl.classList.remove("unauth");
-          statusEl.classList.add("auth");
+          if (statusEl) {
+            statusEl.textContent = `✅ Connected as ${principal}`;
+            statusEl.classList.remove("unauth");
+            statusEl.classList.add("auth");
+          }
           console.log("[Auth] Enabled for", principal);
         }
 
         function disableUI() {
           uploadInput.setAttribute("disabled", "true");
           authBtn.textContent = "Authenticate";
-          statusEl.textContent = "❌ Please authenticate to enable uploads";
-          statusEl.classList.remove("auth");
-          statusEl.classList.add("unauth");
+          if (statusEl) {
+            statusEl.textContent = "❌ Please authenticate to enable uploads";
+            statusEl.classList.remove("auth");
+            statusEl.classList.add("unauth");
+          }
           console.log("[Auth] Disabled");
         }
+
 
         // Wire up the header button
         authBtn.addEventListener("click", async () => {
