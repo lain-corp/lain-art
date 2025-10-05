@@ -14,6 +14,7 @@ thread_local! {
     static NEXT_SUBMISSION_ID: RefCell<u64> = RefCell::new(1);
 }
 
+#[allow(dead_code)]
 struct SubmissionData {
     creator: candid::Principal,
     chunks: Vec<Vec<u8>>,
@@ -127,14 +128,26 @@ fn clear_face_recognition_model_bytes() {
 /// This is used for incremental chunk uploading of large files.
 #[ic_cdk::update]
 fn append_face_detection_model_bytes(bytes: Vec<u8>) {
+    ic_cdk::println!("[append_face_detection_model_bytes] Received {} bytes", bytes.len());
+    ic_cdk::println!("[append_face_detection_model_bytes] First 100 bytes of chunk: {:?}", &bytes[..std::cmp::min(100, bytes.len())]);
     storage::append_bytes(FACE_DETECTION_FILE, bytes);
+    let stable_memory_size = storage::get_stable_memory_size(FACE_DETECTION_FILE);
+    ic_cdk::println!("[append_face_detection_model_bytes] Stable memory size after append: {} bytes", stable_memory_size);
+    let stable_memory_content = storage::bytes(FACE_DETECTION_FILE);
+    ic_cdk::println!("[append_face_detection_model_bytes] First 100 bytes of stable memory: {:?}", &stable_memory_content[..std::cmp::min(100, stable_memory_content.len())]);
 }
 
 /// Appends the given chunk to the face recognition model file.
 /// This is used for incremental chunk uploading of large files.
 #[ic_cdk::update]
 fn append_face_recognition_model_bytes(bytes: Vec<u8>) {
+    ic_cdk::println!("[append_face_recognition_model_bytes] Received {} bytes", bytes.len());
+    ic_cdk::println!("[append_face_recognition_model_bytes] First 100 bytes of chunk: {:?}", &bytes[..std::cmp::min(100, bytes.len())]);
     storage::append_bytes(FACE_RECOGNITION_FILE, bytes);
+    let stable_memory_size = storage::get_stable_memory_size(FACE_RECOGNITION_FILE);
+    ic_cdk::println!("[append_face_recognition_model_bytes] Stable memory size after append: {} bytes", stable_memory_size);
+    let stable_memory_content = storage::bytes(FACE_RECOGNITION_FILE);
+    ic_cdk::println!("[append_face_recognition_model_bytes] First 100 bytes of stable memory: {:?}", &stable_memory_content[..std::cmp::min(100, stable_memory_content.len())]);
 }
 
 /// Once the model files have been incrementally uploaded,
@@ -216,5 +229,37 @@ fn finalize_asset(submission_id: candid::Nat, mime: String, size: candid::Nat, s
             // Here you would typically persist the asset, verify hash, etc.
         }
     });
+}
+
+/// Runs face detection on the uploaded image for the given submission ID.
+/// Returns the bounding box of the detected face.
+#[ic_cdk::update]
+fn run_face_detection(submission_id: candid::Nat) -> Result<BoundingBox, String> {
+    let submission_id_u64: u64 = submission_id.0.to_u64().expect("submission_id too large");
+
+    SUBMISSIONS.with(|subs| {
+        let subs = subs.borrow();
+        if let Some(sub) = subs.get(&submission_id_u64) {
+            if let Some(chunks) = sub.chunks.first() {
+                let image_data: Vec<u8> = chunks.clone();
+                match detect(image_data) {
+                    Detection::Ok(bounding_box) => {
+                        ic_cdk::println!("[Face Detection] Success: Bounding Box = {:?}", bounding_box);
+                        Ok(bounding_box)
+                    }
+                    Detection::Err(err) => {
+                        ic_cdk::println!("[Face Detection] Error: {}", err.message);
+                        Err(format!("Face detection failed: {}", err.message))
+                    }
+                }
+            } else {
+                ic_cdk::println!("[Face Detection] Error: No image chunks found for submission ID {}", submission_id_u64);
+                Err("No image chunks found".to_string())
+            }
+        } else {
+            ic_cdk::println!("[Face Detection] Error: Submission ID {} not found", submission_id_u64);
+            Err("Submission ID not found".to_string())
+        }
+    })
 }
 

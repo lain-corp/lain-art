@@ -2,6 +2,7 @@ use anyhow::anyhow;
 use bytes::Bytes;
 use candid::CandidType;
 use prost::Message;
+use rand::Rng;
 use serde::Deserialize;
 use std::cell::RefCell;
 use tract_ndarray::s;
@@ -18,7 +19,7 @@ thread_local! {
     static DB: RefCell<Vec<(String, Embedding)>> = RefCell::new(vec![]);
 }
 
-#[derive(CandidType, Deserialize, Clone)]
+#[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct BoundingBox {
     left: f32,
     top: f32,
@@ -61,6 +62,7 @@ pub struct Person {
 }
 
 fn setup_facedetect(bytes: Bytes) -> TractResult<()> {
+    ic_cdk::println!("[Debug] Setting up face detection model. Bytes size: {}", bytes.len());
     let proto: tract_onnx::pb::ModelProto = tract_onnx::pb::ModelProto::decode(bytes)?;
     let ultraface = tract_onnx::onnx()
         .model_for_proto_model(&proto)?
@@ -73,6 +75,7 @@ fn setup_facedetect(bytes: Bytes) -> TractResult<()> {
 }
 
 fn setup_facerec(bytes: Bytes) -> TractResult<()> {
+    ic_cdk::println!("[Debug] Setting up face recognition model. Bytes size: {}", bytes.len());
     let proto: tract_onnx::pb::ModelProto = tract_onnx::pb::ModelProto::decode(bytes)?;
     let facerec = tract_onnx::onnx()
         .model_for_proto_model(&proto)?
@@ -178,4 +181,14 @@ pub fn add(label: String, image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
         db.push((label, emb.clone()));
     });
     Ok(emb)
+}
+
+#[cfg(target_arch = "wasm32")]
+#[no_mangle]
+pub extern "C" fn __getrandom_custom(buf: *mut u8, len: usize) -> i32 {
+    let mut rng = rand::thread_rng();
+    for i in 0..len {
+        unsafe { *buf.add(i) = rng.gen::<u8>() }; // Generate random bytes deterministically
+    }
+    0 // Return 0 to indicate success
 }
