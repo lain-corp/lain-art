@@ -1,0 +1,59 @@
+type Status = variant {
+  PendingUpload;
+  AwaitingFee;
+  Verifying;
+  Verified : record { originality : nat16; visibility : nat16 };
+  Rejected : record { reason : text };
+  Rewarded;
+};
+
+type ArtMeta = record {
+  mime : text;
+  size : nat;
+  sha256 : vec nat8;
+  chunks : nat;
+};
+
+type Submission = record {
+  id : nat;
+  creator : principal;
+  status : Status;
+  art : opt ArtMeta;
+  fee_paid : bool;
+  nft_token_id : opt nat;
+  created_at : nat64;
+  updated_at : nat64;
+};
+
+type FeeInvoice = record {
+  amount : nat;
+  subaccount : opt vec nat8;
+  memo : opt nat;
+};
+
+type RewardResult = record {
+  token_id : nat;
+  reward_txid : text;
+};
+
+service : {
+  // --- Upload flow ---
+  start_submission : () -> (nat);
+  put_chunk : (nat, nat, blob) -> ();
+  finalize_asset : (nat, text, nat, vec nat8) -> ();
+
+  // --- Fee flow ---
+  get_fee_invoice : (nat) -> (FeeInvoice) query;
+  confirm_fee : (nat) -> ();
+
+  // --- Verification flow ---
+  trigger_verification : (nat) -> ();
+  set_verdict : (nat, nat16, nat16, text) -> ();
+  override_verdict : (nat, Status, text) -> ();
+
+  // --- Reward flow ---
+  finalize_reward : (nat) -> (RewardResult);
+
+  // --- Queries ---
+  get_submission : (nat) -> (opt Submission) query;
+}
