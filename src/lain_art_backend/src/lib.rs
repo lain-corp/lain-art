@@ -130,10 +130,13 @@ fn clear_face_recognition_model_bytes() {
 fn append_face_detection_model_bytes(bytes: Vec<u8>) {
     ic_cdk::println!("[append_face_detection_model_bytes] Received {} bytes", bytes.len());
     ic_cdk::println!("[append_face_detection_model_bytes] First 100 bytes of chunk: {:?}", &bytes[..std::cmp::min(100, bytes.len())]);
-    storage::append_bytes(FACE_DETECTION_FILE, bytes);
-    let stable_memory_size = storage::get_stable_memory_size(FACE_DETECTION_FILE);
+    
+    storage::append_face_detection_bytes(bytes);
+    
+    let stable_memory_size = storage::get_stable_memory_stats().0;
     ic_cdk::println!("[append_face_detection_model_bytes] Stable memory size after append: {} bytes", stable_memory_size);
-    let stable_memory_content = storage::bytes(FACE_DETECTION_FILE);
+    
+    let stable_memory_content = storage::face_detection_bytes();
     ic_cdk::println!("[append_face_detection_model_bytes] First 100 bytes of stable memory: {:?}", &stable_memory_content[..std::cmp::min(100, stable_memory_content.len())]);
 }
 
@@ -143,10 +146,13 @@ fn append_face_detection_model_bytes(bytes: Vec<u8>) {
 fn append_face_recognition_model_bytes(bytes: Vec<u8>) {
     ic_cdk::println!("[append_face_recognition_model_bytes] Received {} bytes", bytes.len());
     ic_cdk::println!("[append_face_recognition_model_bytes] First 100 bytes of chunk: {:?}", &bytes[..std::cmp::min(100, bytes.len())]);
-    storage::append_bytes(FACE_RECOGNITION_FILE, bytes);
-    let stable_memory_size = storage::get_stable_memory_size(FACE_RECOGNITION_FILE);
+    
+    storage::append_face_recognition_bytes(bytes);
+    
+    let stable_memory_size = storage::get_stable_memory_stats().1;
     ic_cdk::println!("[append_face_recognition_model_bytes] Stable memory size after append: {} bytes", stable_memory_size);
-    let stable_memory_content = storage::bytes(FACE_RECOGNITION_FILE);
+    
+    let stable_memory_content = storage::face_recognition_bytes();
     ic_cdk::println!("[append_face_recognition_model_bytes] First 100 bytes of stable memory: {:?}", &stable_memory_content[..std::cmp::min(100, stable_memory_content.len())]);
 }
 
@@ -154,11 +160,14 @@ fn append_face_recognition_model_bytes(bytes: Vec<u8>) {
 /// this function loads them into in-memory models.
 #[ic_cdk::update]
 fn setup_models() -> Result<(), String> {
-    setup(
-        storage::bytes(FACE_DETECTION_FILE),
-        storage::bytes(FACE_RECOGNITION_FILE),
-    )
-    .map_err(|err| format!("Failed to setup model: {}", err))
+    let face_detection_bytes = storage::face_detection_bytes();
+    let face_recognition_bytes = storage::face_recognition_bytes();
+    
+    ic_cdk::println!("[Debug] Setting up face detection model. Bytes size: {}", face_detection_bytes.len());
+    ic_cdk::println!("[Debug] Setting up face recognition model. Bytes size: {}", face_recognition_bytes.len());
+    
+    setup(face_detection_bytes, face_recognition_bytes)
+        .map_err(|err| format!("Failed to setup model: {}", err))
 }
 
 #[ic_cdk::init]

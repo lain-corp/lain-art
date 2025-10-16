@@ -10,7 +10,7 @@ To upload the models the procedure is the following :
 use dfx 0.24.0 
 
 ```bash
-dfxwm default 0.24.0
+dfxvm default 0.24.0
 ```
 
 create an unencrypted version of your current dfx identity 
@@ -74,5 +74,3 @@ Test recognition:
 ```bash
 dfx canister call lain_art_backend recognize '(blob "$(cat test_image.jpg | base64 -w 0)")' --network ic
 ```
-
-CREDITS TO https://github.com/Munyawera-Fils/Face_recognition_IN_RUST_ICP
