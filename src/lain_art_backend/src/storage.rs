@@ -1,12 +1,54 @@
 use bytes::Bytes;
-use ic_stable_structures::memory_manager::MemoryId;
-use ic_stable_structures::memory_manager::MemoryManager;
-use ic_stable_structures::{Memory, Ic0StableMemory};
+use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
+use ic_stable_structures::{Memory, Ic0StableMemory, StableBTreeMap};
+use ic_stable_structures::storable::{Bound, Storable};
 use std::cell::RefCell;
+use std::borrow::Cow;
+use candid::{CandidType, Decode, Encode};
+use serde::{Deserialize, Serialize};
 
 // Separate memory IDs for each model to prevent overwrites
 const FACE_DETECTION_MEMORY_ID: MemoryId = MemoryId::new(0);
 const FACE_RECOGNITION_MEMORY_ID: MemoryId = MemoryId::new(1);
+const FACE_DATABASE_MEMORY_ID: MemoryId = MemoryId::new(2);
+
+// Wrapper type for String keys in BTreeMap
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct FaceLabel(pub String);
+
+impl Storable for FaceLabel {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(self.0.as_bytes().to_vec())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        FaceLabel(String::from_utf8(bytes.to_vec()).unwrap())
+    }
+
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 256,
+        is_fixed_size: false,
+    };
+}
+
+// Face database entry: label -> embedding
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+pub struct StoredEmbedding {
+    pub label: String,
+    pub embedding: Vec<f32>,
+}
+
+impl Storable for StoredEmbedding {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(Encode!(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        Decode!(bytes.as_ref(), Self).unwrap()
+    }
+
+    const BOUND: Bound = Bound::Unbounded;
+}
 
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<Ic0StableMemory>> =
@@ -15,6 +57,13 @@ thread_local! {
     // Track actual data size per model
     static FACE_DETECTION_SIZE: RefCell<u64> = RefCell::new(0);
     static FACE_RECOGNITION_SIZE: RefCell<u64> = RefCell::new(0);
+    
+    // Stable face database: label -> embedding
+    static FACE_DATABASE: RefCell<StableBTreeMap<FaceLabel, StoredEmbedding, VirtualMemory<Ic0StableMemory>>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(FACE_DATABASE_MEMORY_ID))
+        )
+    );
 }
 
 // Face Detection Model Storage
@@ -83,12 +132,14 @@ fn append_model(
         
         let new_size = current_size + bytes.len() as u64;
         let required_pages = (new_size + 65535) / 65536;
-        let current_pages = memory.size() / 65536;
+        // memory.size() already returns the number of Wasm pages (64KB each), not bytes
+        let current_pages = memory.size();
         
         if required_pages > current_pages {
             let pages_to_grow = required_pages - current_pages;
             #[cfg(debug_assertions)]
-            ic_cdk::println!("[Debug] {}: Growing by {} pages", label, pages_to_grow);
+            ic_cdk::println!("[Debug] {}: Growing from {} to {} pages (+{} pages)", 
+                label, current_pages, required_pages, pages_to_grow);
             
             if memory.grow(pages_to_grow) < 0 {
                 ic_cdk::trap(&format!("Failed to grow stable memory for {}", label));
@@ -99,7 +150,8 @@ fn append_model(
         size_cell.with(|size| *size.borrow_mut() = new_size);
         
         #[cfg(debug_assertions)]
-        ic_cdk::println!("[Debug] {}: New total size: {} bytes", label, new_size);
+        ic_cdk::println!("[Debug] {}: New total size: {} bytes ({} pages)", 
+            label, new_size, (new_size + 65535) / 65536);
     });
 }
 
@@ -145,4 +197,44 @@ pub fn clear_bytes(filename: &str) {
 pub fn get_stable_memory_size(_file: &str) -> usize {
     let (det, rec) = get_stable_memory_stats();
     (det + rec) as usize
+}
+
+// Face Database Management
+pub fn add_face_to_database(label: String, embedding: Vec<f32>) {
+    FACE_DATABASE.with(|db| {
+        db.borrow_mut().insert(
+            FaceLabel(label.clone()),
+            StoredEmbedding {
+                label,
+                embedding,
+            }
+        );
+    });
+}
+
+pub fn get_all_faces() -> Vec<(String, Vec<f32>)> {
+    FACE_DATABASE.with(|db| {
+        db.borrow()
+            .iter()
+            .map(|(label, stored)| (label.0, stored.embedding))
+            .collect()
+    })
+}
+
+pub fn get_face_by_label(label: &str) -> Option<Vec<f32>> {
+    FACE_DATABASE.with(|db| {
+        db.borrow()
+            .get(&FaceLabel(label.to_string()))
+            .map(|stored| stored.embedding)
+    })
+}
+
+pub fn remove_face_from_database(label: &str) {
+    FACE_DATABASE.with(|db| {
+        db.borrow_mut().remove(&FaceLabel(label.to_string()));
+    });
+}
+
+pub fn get_face_database_size() -> u64 {
+    FACE_DATABASE.with(|db| db.borrow().len())
 }

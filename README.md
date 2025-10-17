@@ -74,3 +74,22 @@ Test recognition:
 ```bash
 dfx canister call lain_art_backend recognize '(blob "$(cat test_image.jpg | base64 -w 0)")' --network ic
 ```
+
+TO DO
+
+Expected flow of the application : A user submits the picture of their art, it is checked if Lain is present in the picture via verifying her face is clearly visible and belongs to her, and if the result is positive, the picture is stored in memory, and it will be displayed in the frontend canister.
+
+# List all face labels stored in the database
+dfx canister call lain_art_backend list_stored_faces --network ic
+
+# Get the total count of faces
+dfx canister call lain_art_backend get_face_count --network ic
+
+# Upload Lain's face
+npx tsx upload_face.ts laindb/03.png Lain03
+
+# Test Recognition
+npx tsx test_recognition.ts laindb/03.png
+
+# Remove Face
+npx tsx remove_face.ts TestFace

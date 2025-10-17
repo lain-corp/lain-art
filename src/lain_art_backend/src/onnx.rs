@@ -7,16 +7,17 @@ use serde::Deserialize;
 use std::cell::RefCell;
 use tract_ndarray::s;
 use tract_onnx::prelude::*;
+use crate::storage;
 
 // The maximum distance between face embeddings of the same person.
-const THRESHOLD: f32 = 0.85;
+// Lower scores = better match. Lower threshold to be more strict.
+const THRESHOLD: f32 = 0.6;
 
 type Model = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
 
 thread_local! {
     static FACE_DETECTION: RefCell<Option<Model>> = RefCell::new(None);
     static FACE_RECOGNITION: RefCell<Option<Model>> = RefCell::new(None);
-    static DB: RefCell<Vec<(String, Embedding)>> = RefCell::new(vec![]);
 }
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
@@ -57,8 +58,8 @@ impl Embedding {
 
 #[derive(CandidType, Deserialize)]
 pub struct Person {
-    label: String,
-    score: f32,
+    pub label: String,
+    pub score: f32,
 }
 
 fn setup_facedetect(bytes: Bytes) -> TractResult<()> {
@@ -159,27 +160,41 @@ pub fn embedding(image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
 /// of the given image.
 pub fn recognize(image: Vec<u8>) -> Result<Person, anyhow::Error> {
     let emb = embedding(image)?;
-    DB.with_borrow(|db| {
-        let emb = &emb;
-        let best = db
-            .iter()
-            .min_by(|a, b| f32::partial_cmp(&a.1.distance(emb), &b.1.distance(emb)).unwrap());
-        let best = best.ok_or(anyhow!("Unknown person"))?.clone();
-        let label = best.0;
-        let score = best.1.distance(emb);
-        if score > THRESHOLD {
-            return Err(anyhow!("Unknown person"));
-        }
-        Ok(Person { label, score })
-    })
+    
+    // Get all faces from stable storage
+    let db = storage::get_all_faces();
+    
+    if db.is_empty() {
+        return Err(anyhow!("No faces in database"));
+    }
+    
+    let best = db
+        .iter()
+        .map(|(label, emb_vec)| {
+            let stored_emb = Embedding { v0: emb_vec.clone() };
+            let distance = stored_emb.distance(&emb);
+            (label.clone(), distance)
+        })
+        .min_by(|a, b| f32::partial_cmp(&a.1, &b.1).unwrap())
+        .ok_or(anyhow!("Unknown person"))?;
+    
+    let label = best.0;
+    let score = best.1;
+    
+    if score > THRESHOLD {
+        return Err(anyhow!("Unknown person"));
+    }
+    
+    Ok(Person { label, score })
 }
 
 /// Records a new person with the given name and face image into the state.
 pub fn add(label: String, image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
     let emb = embedding(image)?;
-    DB.with_borrow_mut(|db| {
-        db.push((label, emb.clone()));
-    });
+    
+    // Store in stable memory
+    storage::add_face_to_database(label, emb.v0.clone());
+    
     Ok(emb)
 }
 
