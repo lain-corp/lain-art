@@ -3,7 +3,7 @@ import { idlFactory } from "./lain_art_backend.did.js";
 export { idlFactory } from "./lain_art_backend.did.js";
 
 // 🔧 Hard‑code your deployed backend canister ID as a string
-export const canisterId = "l7gmx-5aaaa-aaaab-qca2a-cai";
+export const canisterId = "kfp4o-2qaaa-aaaab-qcmsa-cai";
 
 export const createActor = (id, options = {}) => {
   // Always talk to the IC boundary node

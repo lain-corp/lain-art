@@ -39,6 +39,12 @@ use std::cell::RefCell;
 
 mod onnx;
 mod storage;
+mod transactions;
+// --- Fee flow ---
+#[ic_cdk::query]
+fn get_fee_invoice(submission_id: candid::Nat) -> transactions::FeeInvoice {
+    transactions::get_fee_invoice(submission_id)
+}
 
 // WASI polyfill requires a virtual stable memory to store the file system.
 // You can replace `0` with any index up to `254`.
@@ -263,8 +269,8 @@ fn run_face_detection(submission_id: candid::Nat) -> Result<BoundingBox, String>
                         Ok(bounding_box)
                     }
                     Detection::Err(err) => {
-                        ic_cdk::println!("[Face Detection] Error: {}", err.message);
-                        Err(format!("Face detection failed: {}", err.message))
+                        ic_cdk::println!("[Face Detection] Error: {}", err);
+                        Err(format!("Face detection failed: {}", err))
                     }
                 }
             } else {
@@ -332,14 +338,14 @@ fn verify_and_store_artwork(submission_id: candid::Nat) -> Result<u64, String> {
                             }
                         }
                         Recognition::Err(err) => {
-                            ic_cdk::println!("[Verify Artwork] Recognition error: {}", err.message);
-                            Err(format!("Face recognition failed: {}", err.message))
+                            ic_cdk::println!("[Verify Artwork] Recognition error: {}", err);
+                            Err(format!("Face recognition failed: {}", err))
                         }
                     }
                 }
                 Detection::Err(err) => {
-                    ic_cdk::println!("[Verify Artwork] Detection error: {}", err.message);
-                    Err(format!("Face detection failed: {}", err.message))
+                    ic_cdk::println!("[Verify Artwork] Detection error: {}", err);
+                    Err(format!("Face detection failed: {}", err))
                 }
             }
         } else {
